@@ -367,7 +367,7 @@ namespace planner_core {
     // debug
     // print out the next obs distribution
     std::cout << "  next obs distribution: " << std::endl;
-    for( int i = 0; i < cells.size(); ++i ) {
+    for( size_t i = 0; i < cells.size(); ++i ) {
       marked_grid_cell_t cell = cells[i];
       boost::optional<double> prob = next_observation_distribution( cell );
       if( prob ) {

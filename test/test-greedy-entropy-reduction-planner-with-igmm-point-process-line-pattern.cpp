@@ -104,8 +104,8 @@ void draw_cells( bot_lcmgl_t* lcmgl,
 {
   double y_extra = 0.2;
   char buf[512];
-  for( int i = 0; i < cells.size(); ++i ) {
-    sprintf( buf, "%d", i );
+  for( size_t i = 0; i < cells.size(); ++i ) {
+    sprintf( buf, "%zi", i );
     nd_aabox_t reg = regions[i];
     bool neg = region_neg[i];
     if( neg ) {

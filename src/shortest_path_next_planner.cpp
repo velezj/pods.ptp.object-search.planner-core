@@ -26,11 +26,11 @@ namespace planner_core {
     std::vector<marked_grid_cell_t> bins;
     std::vector<marked_grid_cell_t> cells = grid.all_cells();
     for( size_t i = 0; i < cells.size();++i ) {
-      bool found = false;
+      //bool found = false;
       for( size_t k = 0; k < points.size(); ++k ) {
 	nd_aabox_t region = grid.region( cells[i] );
 	if( is_inside( points[k], region ) ) {
-	  found = true;
+	  //found = true;
 	  bins.push_back( cells[i] );
 	  break;
 	}
@@ -73,7 +73,7 @@ namespace planner_core {
     char join_barrier_character = '+';
     std::string join_end_string = "\n";
     int barrier_spacing = 5;
-    for( int i = 0; i < all_cells.size(); ++i ) {
+    for( size_t i = 0; i < all_cells.size(); ++i ) {
       marked_grid_cell_t cell = all_cells[i];
       bool marked = (std::find( full_cells.begin(),
 				full_cells.end(),

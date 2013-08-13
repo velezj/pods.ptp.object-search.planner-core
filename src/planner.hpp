@@ -2,8 +2,6 @@
 #if !defined( __PLANNER_CORE_PLANNER_HPP__ )
 #define __PLANNER_CORE_PLANNER_HPP__
 
-//#include <lcmtypes/planner_core.hpp>
-#include <lcmtypes/point_process_core.hpp>
 #include <point-process-core/point_process.hpp>
 #include <point-process-core/marked_grid.hpp>
 

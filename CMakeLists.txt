@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6.0)
 
 # pull in the pods macros. See cmake/pods.cmake for documentation
-set(POD_NAME planner-core)
+set(POD_NAME p2l-planner-core)
 include(cmake/pods.cmake)
 
 # automatically build LCM types.  This also defines a number of CMake
@@ -13,12 +13,17 @@ lcmtypes_build()
 #set(CMAKE_CXX_FLAGS "-std=c++0x -pedantic -Wall -O2 -g")
 #set(CMAKE_CXX_FLAGS "-std=c++0x -pedantic -Wall -O0 -g3")
 
-add_definitions( -std=c++0x -pedantic -Wall )
+add_definitions( -Wall -fdiagnostics-show-option )
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
+
+option ( USE_PEDANTIC "Turn on -pendantic mode in gcc. This will spit out *lots* of warnings from lcm :-(, but hopefully none from the rest of the code" OFF)
+if( USE_PEDANTIC )
+    add_definitions( -pedantic )
+endif (USE_PEDANTIC)
 
 
 ## the library
-add_library( planner-core SHARED
+add_library( p2l-planner-core SHARED
   src/greedy_entropy_reduction_planner.cpp
   src/greedy_shortest_path_distribution_threshold_planner.cpp
   src/shortest_path_next_planner.cpp
@@ -33,12 +38,14 @@ pods_install_headers(
   DESTINATION
   planner-core
 )
-pods_use_pkg_config_packages(planner-core point-process-core lcmtypes_point-process-core boost-1.51.0)
-pods_install_libraries( planner-core )
-pods_install_pkg_config_file(planner-core
+pods_use_pkg_config_packages(p2l-planner-core 
+    p2l-point-process-core 
+    boost-1.54.0)
+pods_install_libraries( p2l-planner-core )
+pods_install_pkg_config_file(p2l-planner-core
     CFLAGS
-    LIBS -lplanner-core
-    REQUIRES point-process-core boost-1.51.0
+    LIBS -lp2l-planner-core
+    REQUIRES p2l-point-process-core boost-1.54.0
     VERSION 0.0.1)
 
 

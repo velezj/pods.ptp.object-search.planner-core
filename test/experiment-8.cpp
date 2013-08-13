@@ -30,23 +30,23 @@ void write_ruler_process_meta
     // ok, writeo ut hte experiment details to the meta file
   fout_meta << "# OBSERVATIONS" << std::endl; 
  fout_meta << process->_state.observations.size() << std::endl;
-  for( int i = 0; i < process->_state.observations.size(); ++i ) {
+  for( size_t i = 0; i < process->_state.observations.size(); ++i ) {
     fout_meta << process->_state.observations[i] << std::endl;
   }
   fout_meta << "# NEGATIVE OBSERVATION REGIONS" << std::endl;
   fout_meta << process->_state.negative_observations.size() << std::endl;
-  for( int i = 0; i < process->_state.negative_observations.size(); ++i ) {
+  for( size_t i = 0; i < process->_state.negative_observations.size(); ++i ) {
     fout_meta << process->_state.negative_observations[i] << std::endl;
   }
   fout_meta << "# INIT MIXTURE CLUSTERINGS" << std::endl;
-  for( int i = 0; i < process->_state.observations.size(); ++i ) {
+  for( size_t i = 0; i < process->_state.observations.size(); ++i ) {
     fout_meta << process->_state.observation_to_mixture[i] << std::endl;
   }
   fout_meta << "# INIT MODEL" << std::endl;
   fout_meta << process->_state.model << std::endl;
   fout_meta << "# INIT MIXTURES" << std::endl;
   fout_meta << process->_state.mixture_gaussians.size() << std::endl;
-  for( int i = 0; i < process->_state.mixture_gaussians.size(); ++i ) {
+  for( size_t i = 0; i < process->_state.mixture_gaussians.size(); ++i ) {
     fout_meta << "## MIXUTRE " << i << std::endl;
     fout_meta << "### SPREAD" << std::endl;
     fout_meta << process->_state.mixture_gaussians[i] << std::endl;
@@ -116,7 +116,7 @@ compute_empty_regions( const std::vector<nd_point_t>& points,
   std::vector< nd_point_t > y_line_ticks;
   x_line_ticks.push_back( region.start );
   y_line_ticks.push_back( region.start );
-  for( int i = 0; i < points_x.size(); ++i ) {
+  for( size_t i = 0; i < points_x.size(); ++i ) {
     nd_vector_t x_margin = ( epsilon * vector( axis_direction( dim, 0 ) ) );
     x_line_ticks.push_back( points_x[i] + (-1.0 * x_margin) );
     x_line_ticks.push_back( points_x[i] + x_margin );
@@ -130,10 +130,10 @@ compute_empty_regions( const std::vector<nd_point_t>& points,
   // create all sub regions given the lines and return those which do not
   // have a point in them
   std::vector<nd_aabox_t> empty_regions;
-  for( int xi = 0; xi < x_line_ticks.size() - 1; ++xi ) {
+  for( size_t xi = 0; xi < x_line_ticks.size() - 1; ++xi ) {
     nd_point_t xstart = x_line_ticks[xi];
     nd_point_t xend = x_line_ticks[xi+1];
-    for( int yi = 0; yi < y_line_ticks.size() - 1; ++yi ) {
+    for( size_t yi = 0; yi < y_line_ticks.size() - 1; ++yi ) {
       nd_point_t ystart = y_line_ticks[yi];
       nd_point_t yend = y_line_ticks[yi+1];
 
@@ -143,7 +143,7 @@ compute_empty_regions( const std::vector<nd_point_t>& points,
 			      yend.coordinate[1] );
       nd_aabox_t box = aabox( start, end );
       bool empty = true;
-      for( int k = 0; k < points.size(); ++k ) {
+      for( size_t k = 0; k < points.size(); ++k ) {
 	if( is_inside( points[k], box ) ) {
 	  empty = false;
 	  break;
@@ -258,10 +258,10 @@ int main( int argc, char** argv )
   }
   std::ostringstream oss_meta;
   oss_meta << dir << "/" << "planner.meta";
-  std::ofstream fout_meta( oss_meta.str() );
+  std::ofstream fout_meta( oss_meta.str().c_str() );
   std::ostringstream oss_trace;
   oss_trace << dir << "/" << "planner.trace";
-  std::ofstream fout_trace( oss_trace.str() );
+  std::ofstream fout_trace( oss_trace.str().c_str() );
   
   // get seed if given
   unsigned int seed = 0;
@@ -352,7 +352,7 @@ int main( int argc, char** argv )
 	     prob_thresh);
 
   // add observations initially to planner
-  for( int i = 0 ; i < init_points.size(); ++i ) {
+  for( size_t i = 0 ; i < init_points.size(); ++i ) {
     planner._observations.push_back( init_points[i] );
   }
 
@@ -426,7 +426,7 @@ int main( int argc, char** argv )
   fout_meta << entropy_params.num_samples_to_skip << std::endl;
   fout_meta << entropy_params.histogram_grid_cell_size << std::endl;
   fout_meta << "# INITIAL POINTS" << std::endl;
-  for( int i = 0 ; i < init_points.size(); ++i ) {
+  for( size_t i = 0 ; i < init_points.size(); ++i ) {
     fout_meta << init_points[i] << std::endl;
   }
   fout_meta << "# INITIAL SEEN CELLS" << std::endl;
@@ -494,7 +494,7 @@ int main( int argc, char** argv )
 	       << new_obs.size() << " "
 	       << planner.observations().size() << " "
 	       << region << " ";
-    for( int i = 0; i < new_obs.size(); ++i ) {
+    for( size_t i = 0; i < new_obs.size(); ++i ) {
       fout_trace << new_obs[ i ] << " ";
     }
     fout_trace << std::endl;
