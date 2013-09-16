@@ -58,7 +58,7 @@ namespace planner_core {
     // all cells which have been observed
     virtual
     marked_grid_t<bool>
-    visisted_grid() const = 0;
+    visited_grid() const = 0;
 
     // Description:
     // Adds a given cell as already visisted
