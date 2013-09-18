@@ -50,4 +50,4 @@ pods_install_pkg_config_file(p2l-planner-core
 
 
 
-add_subdirectory( test )
+#add_subdirectory( test )
