@@ -102,10 +102,6 @@ namespace planner_core {
     virtual
     bool all_cells_visited() const = 0;
 
-    // Description:
-    // Adds an observation but does NOT run the point process model.
-    virtual
-    void add_observation_without_updating_model( const math_core::nd_point_t& p ) = 0;
 
   protected:
 

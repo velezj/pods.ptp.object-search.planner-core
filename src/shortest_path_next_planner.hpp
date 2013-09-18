@@ -41,7 +41,7 @@ namespace planner_core {
     // all cells which have been observed
     virtual
     marked_grid_t<bool>
-    visisted_grid() const
+    visited_grid() const
     {
       return _visited_grid;
     }
