@@ -336,13 +336,13 @@ int main( int argc, char** argv )
 
   // create a planner for it
   grid_planner_parameters_t planner_params;
-  planner_params.burnin_mcmc_iterations = 1000;
-  planner_params.update_model_mcmc_iterations = 100;
+  planner_params.burnin_mcmc_iterations = 100;
+  planner_params.update_model_mcmc_iterations = 10;
   entropy_estimator_parameters_t entropy_params;
   entropy_params.num_samples = 10;
   sampler_planner_parameters_t sampler_planner_params;
   sampler_planner_params.num_samples_of_observations = 10;
-  sampler_planner_params.num_samples_of_point_sets = 200;
+  sampler_planner_params.num_samples_of_point_sets = 120;
   double prob_thresh = 0.6;
   shortest_path_next_planner 
     planner( planner_process,

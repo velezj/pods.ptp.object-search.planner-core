@@ -23,6 +23,10 @@ namespace planner_core {
   canonical_point_bin( const std::vector<nd_point_t>& points,
 		       const marked_grid_t<bool>& grid )
   {
+    for( size_t i = 0; i < points.size(); ++i ) {
+      std::cout << points[i] << " ";
+    }
+    std::cout << std::endl;
     std::vector<marked_grid_cell_t> bins;
     std::vector<marked_grid_cell_t> cells = grid.all_cells();
     for( size_t i = 0; i < cells.size();++i ) {
@@ -499,6 +503,12 @@ namespace planner_core {
       spnp_console_print_point_set( sample_point_set, visited_grid );
       std::cout << std::endl;
 
+      // print the canonical representation
+      for( size_t i = 0; i < sample_bin.size(); ++i ) {
+	std::cout << sample_bin[i];
+      }
+      std::cout << std::endl;
+
       // ok, increment count of bin
       std::vector< std::vector<marked_grid_cell_t> >::iterator fiter
 	= std::find( bins.begin(),
@@ -676,6 +686,18 @@ namespace planner_core {
 
     if( next_cell )
       return *next_cell;
+
+    // Ok, hwat if the shortest path is invalid for some reason
+    // Then jsut choose the first non-marked cell
+    std::vector<marked_grid_cell_t> all_cells = _visited_grid.all_cells();
+    for( size_t i = 0; i < all_cells.size(); ++i ) {
+      if( !_visited_grid( all_cells[i] ) ) {
+	return all_cells[i];
+      }
+    }
+    
+    // getting here is unfortunate!
+    std::cout << "AHHHHH! Why is there no unmarkes grid cell!" << std::endl;
     return _visited_grid.cell( _current_position );
   }
 
