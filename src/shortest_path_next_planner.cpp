@@ -10,6 +10,7 @@
 #include <point-process-core/context.hpp>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <algorithm>
 
 
@@ -727,6 +728,107 @@ namespace planner_core {
   }
 
   //=======================================================================
+
+  //=======================================================================
+  
+  std::string to_json( const grid_planner_parameters_t& p ) 
+  {
+    std::ostringstream oss;
+    oss << "{ \"object_class\" : \"grid_planner_parameters_t\" , ";
+    oss << "  \"burnin_mcmc_iterations\" : " << p.burnin_mcmc_iterations << " , ";
+    oss << "  \"update_model_mcmc_iterations\" : " << p.update_model_mcmc_iterations << " , ";
+    oss << "  \"grid_cell_size\" : " << p.grid_cell_size;
+    oss << "}";
+    return oss.str();
+  }
+  
+  //=======================================================================
+
+  std::string to_json( const sampler_planner_parameters_t& p )
+  {
+    std::ostringstream oss;
+    oss << "{ \"object_class\" : \"sampler_planner_parameters_t\" , ";
+    oss << "  \"num_samples_of_observations\" : " << p.num_samples_of_observations << " , ";
+    oss << "  \"num_samples_of_point_sets\" : " << p.num_samples_of_point_sets;
+    oss << "}";
+    return oss.str();
+  }
+
+  //=======================================================================
+
+  std::string to_json( const entropy_estimator_parameters_t& p )
+  {
+    std::ostringstream oss;
+    oss << "{ \"object_class\" : \"entropy_estimator_parameters_t\" , ";
+    oss << "  \"num_samples\" : " << p.num_samples << " , ";
+    oss << "  \"num_samples_to_skip\" : " << p.num_samples_to_skip << " , ";
+    oss << "  \"histogram_grid_cell_size\" : " << p.histogram_grid_cell_size;
+    oss << "}";
+    return oss.str();
+  }
+
+  //=======================================================================
+
+  std::string to_json( const marked_grid_cell_t& cell ) 
+  {
+    std::ostringstream oss;
+    oss << "{ \"object_class\" : \"marked_grid_cell_t\" , ";
+    oss << "  \"coordinate\" : [";
+    for( size_t i = 0; i < cell.coordinate.size(); ++i ) {
+      oss << cell.coordinate[i];
+      if( i < cell.coordinate.size() - 1 ) {
+	oss << ",";
+      }
+    }
+    oss << "] }";
+    return oss.str();
+  }
+
+  //=======================================================================
+
+  std::string to_json( const marked_grid_t<bool>& grid )
+  {
+    std::ostringstream oss;
+    oss << "{ \"object_class\" : \"marked_grid_t<bool>\" , ";
+    oss << "  \"marked-cells\" : [ ";
+    std::vector<marked_grid_cell_t> cells = grid.all_marked_cells();
+    for( size_t i = 0; i < cells.size(); ++i ) {
+      oss << to_json( cells[i] );
+      if( i < cells.size() - 1 ) {
+	oss << ",";
+      }
+    }
+    oss << "] }";
+    return oss.str();
+  }
+
+  //=======================================================================
+
+
+  void 
+  shortest_path_next_planner::print_shallow_trace( std::ostream& out ) const
+  {
+
+    out << "{ \"object_class\" : \"shortest_path_next_planner\" , ";
+    out << "  \"current_position\" : " << to_json( _current_position ) << " , ";
+    out << "  \"planner_params\" : " << to_json( _planner_params ) << " , ";
+    out << "  \"entropy_params\" : " << to_json( _entropy_params ) << " , ";
+    out << "  \"sample_planner_params\" : " << to_json( _sampler_planner_params ) << " , ";
+    out << "  \"observations\" : [ ";
+    for( size_t i = 0 ; i < _observations.size(); ++i ) {
+      out << to_json( _observations[i]  );
+      if( i < _observations.size() - 1 ) {
+	out << ",";
+      }
+    }
+    out << "], ";
+    out << "  \"visited_grid\" : " << to_json( _visited_grid ) << " , ";
+    out << "  \"negative_observation_grid\" : " << to_json( _negative_observation_grid ) << " , ";
+    out << "  \"probability_next_action_is_in_shortest_path_threshold\" : " << _probability_next_action_is_in_shortest_path_threshold;
+    out << "} ";
+    
+  }
+
   //=======================================================================
   //=======================================================================
   //=======================================================================

@@ -116,6 +116,21 @@ namespace planner_core {
       return false;
     }
 
+    // Description:
+    // Print outs a shallow trace for this planner
+    virtual
+    void print_shallow_trace( std::ostream& out ) const;
+
+    // Description:
+    // print shallow trace of the model
+    virtual
+    void print_model_shallow_trace( std::ostream& out ) const
+    {
+      if( _point_process ) {
+	_point_process->print_shallow_trace( out );
+      }
+    }
+
   public:
 
     // Description:

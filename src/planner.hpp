@@ -4,6 +4,7 @@
 
 #include <point-process-core/point_process.hpp>
 #include <point-process-core/marked_grid.hpp>
+#include <iosfwd>
 
 namespace planner_core {
 
@@ -102,6 +103,21 @@ namespace planner_core {
     virtual
     bool all_cells_visited() const = 0;
 
+    // Description:
+    // Prints out the "shallow" trace for this planner.
+    // This is just a single-line (no newlione!_) string representation
+    // of the parameters of this planner NOT including any deep objects
+    // (hence the *shallow* part).  Only prints out things owned/operated by
+    // this planner itself (so not the model, etc..)
+    virtual
+    void print_shallow_trace( std::ostream& out ) const = 0;
+
+    // Descrioption:
+    // Prints out a "shallow" trace for the model used by this planner.
+    // This should just route to the model object's print_shallow_trace
+    // method.
+    virtual
+    void print_model_shallow_trace( std::ostream& out ) const = 0;
 
   protected:
 
