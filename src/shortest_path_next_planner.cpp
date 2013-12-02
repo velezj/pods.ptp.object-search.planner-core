@@ -474,7 +474,8 @@ namespace planner_core {
   estimate_most_likely_world
   ( const boost::shared_ptr<mcmc_point_process_t>& process,
     const marked_grid_t<bool>& visited_grid,
-    const unsigned long num_samples_of_point_sets )
+    const unsigned long num_samples_of_point_sets,
+    const unsigned long skip_between_samples_used = 10 )
   {
     
     // a list of bins and their counts
@@ -489,6 +490,11 @@ namespace planner_core {
       std::vector<nd_point_t> sample_point_set 
 	= process->sample_and_step();
       std::vector<marked_grid_cell_t> sample_bin = canonical_point_bin( sample_point_set, visited_grid );
+
+      // skip the given samples
+      for( unsigned long skip_i = 0; skip_i + 1 < skip_between_samples_used; ++skip_i ) {
+	process->single_mcmc_step();
+      }
 
       // skip if no points in sample
       if( sample_point_set.empty() ) {
@@ -669,7 +675,8 @@ namespace planner_core {
       estimate_most_likely_world
       ( _point_process,
 	_visited_grid,
-	_sampler_planner_params.num_samples_of_point_sets);
+	_sampler_planner_params.num_samples_of_point_sets,
+	_sampler_planner_params.num_skip_between_point_set_samples);
 
     // Ok, now create virtual points at each cell
     std::vector<nd_point_t> virtual_points;
@@ -750,6 +757,7 @@ namespace planner_core {
     oss << "{ \"object_class\" : \"sampler_planner_parameters_t\" , ";
     oss << "  \"num_samples_of_observations\" : " << p.num_samples_of_observations << " , ";
     oss << "  \"num_samples_of_point_sets\" : " << p.num_samples_of_point_sets;
+    oss << "  \"num_skip_between_point_set_samples\" : " << p.num_skip_between_point_set_samples;
     oss << "}";
     return oss.str();
   }

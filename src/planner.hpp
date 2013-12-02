@@ -39,10 +39,12 @@ namespace planner_core {
   public:
     std::size_t num_samples_of_observations;
     std::size_t num_samples_of_point_sets;
+    std::size_t num_skip_between_point_set_samples;
 
     sampler_planner_parameters_t()
       : num_samples_of_observations( 100 ),
-	num_samples_of_point_sets( 100 )
+	num_samples_of_point_sets( 100 ),
+	num_skip_between_point_set_samples( 10 )
     {}
   };
 
