@@ -35,6 +35,7 @@ pods_install_headers(
   src/edmonds_optimum_branching_impl.hpp
   src/greedy_shortest_path_distribution_threshold_planner.hpp
   src/shortest_path_next_planner.hpp
+  src/coverage_planner.hpp
   DESTINATION
   planner-core
 )

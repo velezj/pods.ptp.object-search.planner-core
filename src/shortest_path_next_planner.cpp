@@ -88,7 +88,11 @@ namespace planner_core {
       if( marked ) {
 	std::cout << "v";
       } else {
-	std::cout << "-";
+	if( grid( cell ) ) {
+	  std::cout << ".";
+	} else {
+	  std::cout << "-";
+	}
       }
       
       // write out a barrier if needed,
@@ -470,6 +474,24 @@ namespace planner_core {
 
   //=======================================================================
 
+  size_t nonvisited_grid_count( const std::vector<nd_point_t>& sample, 
+				const marked_grid_t<bool>& visited_grid )
+  {
+    std::vector<marked_grid_cell_t> new_cells;
+    for( auto p : sample ) {
+      marked_grid_cell_t cell = visited_grid.cell( p );
+      if( !visited_grid( cell ) ) {
+	if( std::find( new_cells.begin(), new_cells.end(), cell ) 
+	    == new_cells.end() ) {
+	  new_cells.push_back( cell );
+	}
+      }
+    }
+    return new_cells.size();
+  }
+  
+  //=======================================================================
+
   std::vector<marked_grid_cell_t>
   estimate_most_likely_world
   ( const boost::shared_ptr<mcmc_point_process_t>& process,
@@ -489,6 +511,23 @@ namespace planner_core {
       // sample a point set
       std::vector<nd_point_t> sample_point_set 
 	= process->sample_and_step();
+      
+
+      // keep sampling until we get a point set that has at least some
+      // possible new information
+      // (so, at least one *new* non-visited grid must have a point
+      size_t max_find_samples = 100;
+      size_t find_samples_count = 0;
+      while( nonvisited_grid_count( sample_point_set, visited_grid ) < 1
+	     && find_samples_count < max_find_samples ) {
+	sample_point_set = process->sample_and_step();
+	++find_samples_count;
+      }
+
+      if( nonvisited_grid_count( sample_point_set, visited_grid ) == 0 ) {
+	std::cout << "  !! no new cells in " << max_find_samples << " samples..." << std::endl;
+      }
+
       std::vector<marked_grid_cell_t> sample_bin = canonical_point_bin( sample_point_set, visited_grid );
 
       // skip the given samples
@@ -511,10 +550,12 @@ namespace planner_core {
       std::cout << std::endl;
 
       // print the canonical representation
-      for( size_t i = 0; i < sample_bin.size(); ++i ) {
-	std::cout << sample_bin[i];
+      if( false ) {
+	for( size_t i = 0; i < sample_bin.size(); ++i ) {
+	  std::cout << sample_bin[i];
+	}
+	std::cout << std::endl;
       }
-      std::cout << std::endl;
 
       // ok, increment count of bin
       std::vector< std::vector<marked_grid_cell_t> >::iterator fiter
