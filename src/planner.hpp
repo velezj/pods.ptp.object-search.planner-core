@@ -121,6 +121,15 @@ namespace planner_core {
     virtual
     void print_model_shallow_trace( std::ostream& out ) const = 0;
 
+    // Description:
+    // Get and Set the grid_planner_parameters_t parametetrs
+    virtual
+    grid_planner_parameters_t get_grid_planner_parameters() const = 0;
+    virtual
+    void set_grid_planner_parameters(const grid_planner_parameters_t& p) = 0;
+
+    
+
   protected:
 
   };

@@ -131,6 +131,19 @@ namespace planner_core {
       }
     }
 
+    // Description:
+    // Get/Set the grid_planner_parameters_t parameters
+    virtual
+    grid_planner_parameters_t get_grid_planner_parameters() const
+    {
+      return _planner_params;
+    }
+    virtual
+    void set_grid_planner_parameters( const grid_planner_parameters_t& p )
+    {
+      _planner_params = p;
+    }
+
   public:
 
     // Description:
