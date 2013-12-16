@@ -144,6 +144,18 @@ namespace planner_core {
       _planner_params = p;
     }
 
+    // Description:
+    // Plot this planner.
+    // For now just plot to model
+    virtual
+    std::string
+    plot( const std::string& title ) const
+    {
+      std::string pid = _point_process->plot( "model-for-" + title );
+      std::cout << "Planner PLOT: " << pid << std::endl;
+      return pid;
+    }
+
   public:
 
     // Description:

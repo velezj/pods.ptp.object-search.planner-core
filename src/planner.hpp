@@ -4,7 +4,7 @@
 
 #include <point-process-core/point_process.hpp>
 #include <point-process-core/marked_grid.hpp>
-#include <iosfwd>
+#include <iostream>
 
 namespace planner_core {
 
@@ -128,6 +128,17 @@ namespace planner_core {
     virtual
     void set_grid_planner_parameters(const grid_planner_parameters_t& p) = 0;
 
+
+    // Description:
+    // Plot the current planner state.
+    // This reutnrs the plot id.
+    // This uses the plot-server API, hence the returned id
+    // can be used to fetch the pot data.
+    virtual
+    std::string
+    plot( const std::string& title ) const
+    { std::cout << "!!! Default PLANNER-PLOT called!" << std::endl;
+      return ""; }
     
 
   protected:
