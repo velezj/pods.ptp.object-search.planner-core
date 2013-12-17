@@ -12,9 +12,13 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
+#include <plot-server/api/plot.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 
 using namespace point_process_core;
+using namespace boost::property_tree;
+using namespace plot_server::api;
 
 namespace planner_core {
 
@@ -881,8 +885,82 @@ namespace planner_core {
   //=======================================================================
   //=======================================================================
   //=======================================================================
+
+  // Description:
+  // Crates a dataseries for a marked grid
+  std::string
+  create_dataseries( const marked_grid_t<double>& grid,
+		     const ptree& extra_config,
+		     const std::string& title,
+		     const double& default_value = 0.0)
+  {
+    std::vector<data_point_t> data_points;
+    for( auto cell : grid.all_cells_ordered() ) {
+      double value = default_value;
+      if( grid( cell ) ) {
+	value = *grid( cell );
+      }
+      data_point_t dp = data_point_t( cell.coordinate[0],
+				      cell.coordinate[1],
+				      0.0 );
+      dp.attributes.put( "value", value );
+      data_points.push_back( dp );
+    }
+
+    ptree config = extra_config;
+    std::string did
+      = add_data_series( data_points,
+			 config,
+			 title );
+
+    return did;
+  }
+
+
   //=======================================================================
-  //=======================================================================
+  
+  std::string
+  shortest_path_next_planner::plot( const std::string& title ) const
+  {
+
+    // get a plot for the model
+    std::string model_plot = _point_process->plot( "model-for-" + title );
+    
+    // define a dataseries for the visited grid
+    // std::string visited_ds 
+    //   = create_dataseries( _visited_grid,
+    // 			   ptree(),
+    // 			   "visited-grid-of-" + title );
+    
+    // define a dataseries for the negative regions
+    // std::string neg_ds
+    //   = create_dataseries( _negative_observation_grid,
+    // 			   ptree(),
+    // 			   "neg-regions-of-" + title );
+    
+    // create a style for the visited and negative regions
+    ptree visited_style;
+    visited_style.put( "hidden", true );
+    visited_style.put( "plot_prefix", "plot" );
+    visited_style.put( "gnuplot.style", "image" );
+    visited_style.add( "wanted_attributes.", "x" );
+    visited_style.add( "wanted_attributes.", "y" );
+    visited_style.add( "wanted_attributes.", "value" );
+    ptree neg_style;
+    neg_style.put( "hidden", true );
+    neg_style.put( "plot_prefix", "plot" );
+    neg_style.put( "gnuplot.style", "rgbalpha" );
+    neg_style.add( "wanted_attributes.", "x" );
+    neg_style.add( "wanted_attributes.", "y" );
+    neg_style.add( "wanted_attributes.", "value" );
+    neg_style.add( "wanted_attributes.", "zero" );
+    neg_style.add( "wanted_attributes.", "zero" );
+    neg_style.add( "wanted_attributes.", "value" );
+
+    return model_plot;
+  }
+
+
   //=======================================================================
   //=======================================================================
   //=======================================================================
