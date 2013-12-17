@@ -384,6 +384,8 @@ namespace planner_core {
     
     // so this branching is 2*optimal at worst, so 
     // we will use it!
+
+    //std::cout << " .. found edmonds branching, using it!" << std::endl;
     
     // resturn the cell for the first edge in the branching
     // or nothing if there were no branchings found
@@ -900,8 +902,44 @@ namespace planner_core {
       if( grid( cell ) ) {
 	value = *grid( cell );
       }
-      data_point_t dp = data_point_t( cell.coordinate[0],
-				      cell.coordinate[1],
+      nd_point_t p = centroid( grid.region( cell ) );
+      data_point_t dp = data_point_t( p.coordinate[0],
+				      p.coordinate[1],
+				      0.0 );
+      dp.attributes.put( "value", value );
+      data_points.push_back( dp );
+    }
+
+    ptree config = extra_config;
+    std::string did
+      = add_data_series( data_points,
+			 config,
+			 title );
+
+    return did;
+  }
+
+  //=======================================================================
+
+  // Description:
+  // Crates a dataseries for a marked grid
+  std::string
+  create_dataseries( const marked_grid_t<bool>& grid,
+		     const ptree& extra_config,
+		     const std::string& title,
+		     const double& true_value = 1.0,
+		     const double& false_value = 0.0,
+		     const bool& default_value = false)
+  {
+    std::vector<data_point_t> data_points;
+    for( auto cell : grid.all_cells_ordered() ) {
+      double value = default_value ? true_value : false_value;
+      if( grid( cell ) ) {
+	value = (*grid( cell )) ? true_value : false_value;
+      }
+      nd_point_t p = centroid( grid.region( cell ) );
+      data_point_t dp = data_point_t( p.coordinate[0],
+				      p.coordinate[1],
 				      0.0 );
       dp.attributes.put( "value", value );
       data_points.push_back( dp );
@@ -917,6 +955,7 @@ namespace planner_core {
   }
 
 
+
   //=======================================================================
   
   std::string
@@ -927,25 +966,60 @@ namespace planner_core {
     std::string model_plot = _point_process->plot( "model-for-" + title );
     
     // define a dataseries for the visited grid
-    // std::string visited_ds 
-    //   = create_dataseries( _visited_grid,
-    // 			   ptree(),
-    // 			   "visited-grid-of-" + title );
+    std::string visited_ds 
+      = create_dataseries( _visited_grid,
+    			   ptree(),
+    			   "visited-grid-of-" + title,
+			   255.0 );
     
     // define a dataseries for the negative regions
-    // std::string neg_ds
-    //   = create_dataseries( _negative_observation_grid,
-    // 			   ptree(),
-    // 			   "neg-regions-of-" + title );
+    std::string neg_ds
+      = create_dataseries( _negative_observation_grid,
+    			   ptree(),
+    			   "neg-regions-of-" + title, 
+			   255.0,
+			   0.0,
+			   false);
+
+    // create a distribution over next potential observations
+    // given our current situation/state and plot this distribution
+    marked_grid_t<double> next_cell_dist
+      = _visited_grid.copy_structure<double>();
+    estimate_shortest_path_next_observation_distribution
+      ( _point_process,
+	_visited_grid,
+	100,
+	_current_position,
+	next_cell_dist );
+    double max_v = 0.0;
+    for( auto cell : next_cell_dist.all_marked_cells() ) {
+      double v = *next_cell_dist( cell );
+      if( max_v < v ) {
+	max_v = v;
+      }
+    }
+    for( auto cell : next_cell_dist.all_marked_cells() ) {
+      next_cell_dist.set( cell ,
+			  *next_cell_dist( cell ) / max_v * 255.0 );
+    }
+      
+    std::string next_cell_ds
+      = create_dataseries(  next_cell_dist,
+			    ptree(),
+			    "next-observation-p()-of-" + title );
     
     // create a style for the visited and negative regions
     ptree visited_style;
-    visited_style.put( "hidden", true );
     visited_style.put( "plot_prefix", "plot" );
-    visited_style.put( "gnuplot.style", "image" );
+    visited_style.put( "gnuplot.style", "rgbalpha" );
     visited_style.add( "wanted_attributes.", "x" );
     visited_style.add( "wanted_attributes.", "y" );
     visited_style.add( "wanted_attributes.", "value" );
+    visited_style.add( "wanted_attributes.", "value" );
+    visited_style.add( "wanted_attributes.", "value" );
+    visited_style.add( "wanted_attributes.", 80.0 );
+    visited_style.put( "pre_gnuplot_commands",
+		       "set key outside horizontal\nset size ratio -1" );
     ptree neg_style;
     neg_style.put( "hidden", true );
     neg_style.put( "plot_prefix", "plot" );
@@ -955,9 +1029,38 @@ namespace planner_core {
     neg_style.add( "wanted_attributes.", "value" );
     neg_style.add( "wanted_attributes.", "zero" );
     neg_style.add( "wanted_attributes.", "zero" );
-    neg_style.add( "wanted_attributes.", "value" );
+    neg_style.add( "wanted_attributes.", 80.0 );
+    ptree next_cell_style;
+    next_cell_style.put( "hidden", true );
+    next_cell_style.put( "plot_prefix", "plot" );
+    next_cell_style.put( "gnuplot.style", "rgbalpha" );
+    next_cell_style.add( "wanted_attributes.", "x" );
+    next_cell_style.add( "wanted_attributes.", "y" );
+    next_cell_style.add( "wanted_attributes.", "zero" );
+    next_cell_style.add( "wanted_attributes.", "value" );
+    next_cell_style.add( "wanted_attributes.", "zero" );
+    next_cell_style.add( "wanted_attributes.", 80.0 );
 
-    return model_plot;
+
+    std::vector< std::string > plot_ids;
+    plot_ids.push_back( create_plot( neg_style,
+     				     { neg_ds } ) );
+    plot_ids.push_back( create_plot( next_cell_style,
+     				     { next_cell_ds } ) );
+    plot_ids.push_back( model_plot );
+
+
+    std::string compound_plot = 
+      create_plot( visited_style,
+		   { visited_ds },
+		   title );
+    for( std::string pid : plot_ids ) {
+      add_plot_to_plot( pid, compound_plot );
+    }
+
+    std::cout << "Shortest Path Planner PLOT: " << compound_plot << std::endl;
+    
+    return compound_plot;
   }
 
 
