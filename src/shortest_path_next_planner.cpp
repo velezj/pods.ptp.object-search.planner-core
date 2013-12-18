@@ -13,6 +13,8 @@
 #include <sstream>
 #include <algorithm>
 #include <plot-server/api/plot.hpp>
+#include <plot-server/api/internal/internal.hpp>
+#include <plot-server/util/color.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 
@@ -988,7 +990,7 @@ namespace planner_core {
     estimate_shortest_path_next_observation_distribution
       ( _point_process,
 	_visited_grid,
-	100,
+	10,
 	_current_position,
 	next_cell_dist );
     double max_v = 0.0;
@@ -1009,7 +1011,7 @@ namespace planner_core {
 			    "next-observation-p()-of-" + title );
 
     /// we want to *store* these particular plots for later use
-    _next_cell_distribution_dataseries.push_back( next_cell_ds );
+    const_cast<shortest_path_next_planner*>(this)->_next_cell_distribution_dataseries.push_back( next_cell_ds );
     
     // create a style for the visited and negative regions
     ptree visited_style;
@@ -1062,6 +1064,8 @@ namespace planner_core {
     }
 
     std::cout << "Shortest Path Planner PLOT: " << compound_plot << std::endl;
+
+    plot_all_next_cell_dist( "time-" + title );
     
     return compound_plot;
   }
@@ -1073,8 +1077,117 @@ namespace planner_core {
   ( const std::string& title ) const
   {
 
-    
+    // create a colorizer for hte time steps
+    plot_server::util::colorizer_t 
+      colorize( 0, _next_cell_distribution_dataseries.size() -1 );
+    std::cout << "  colorize[" << 0 << "," << _next_cell_distribution_dataseries.size() -1 << "] " << std::endl;
 
+    // we will change the dataseries of all the next_obs series
+    // by augmenting them with the temporail information
+    std::vector<std::string> data_series;
+    for( size_t i = 0; i < _next_cell_distribution_dataseries.size(); ++i ) {
+      
+      // fetch the data series
+      std::string did = _next_cell_distribution_dataseries[i];
+      ptree ds = internal::fetch_data_series( did );
+      ptree new_ds = ds;
+      ptree ds_temp = new_ds.get_child( "data_series" );
+      ds_temp.erase( "data" );
+      new_ds.put_child( "data_series", ds_temp );
+      
+      // get the wanted color for this dat aseries
+      double r,g,b;
+      r = 1.0;
+      g = 1.0;
+      b = 1.0;
+      colorize.rgb( (double)i, r, g, b );
+      r *= 255;
+      g *= 255;
+      b *= 255;
+      //std::cout << "colorize(" << i << "): " << r << " " << g << " " << b << std::endl;
+
+      // update the colors for all the points in hte data series
+      for( ptree::value_type doc : ds.get_child( "data_series.data" ) ) {
+	doc.second.put( "r", r );
+	doc.second.put( "g", g );
+	doc.second.put( "b", b );
+	if( doc.second.get( "value", 0.0 ) > 127 ) {
+	  doc.second.put( "value_thresh", 255 );
+	} else {
+	  doc.second.put( "value_thresh", 0 );
+	}
+	//std::cout << "putting (rgb) child" << std::endl;
+	new_ds.add_child( "data_series.data.", doc.second );
+      }
+      
+      // save the data series doc
+      ptree res =
+	internal::globaldb().save( new_ds );
+      
+      std::string new_id = res.get<std::string>("id");
+      data_series.push_back( new_id ); 
+    }
+
+
+    // now create plots for all of the data series which include hte
+    // color information added
+    ptree color_thresh_style;
+    color_thresh_style.put( "hidden", true );
+    color_thresh_style.put( "plot_prefix", "plot" );
+    color_thresh_style.put( "gnuplot.style", "rgbalpha" );
+    color_thresh_style.add( "wanted_attributes.", "x" );
+    color_thresh_style.add( "wanted_attributes.", "y" );
+    color_thresh_style.add( "wanted_attributes.", "r" );
+    color_thresh_style.add( "wanted_attributes.", "g" );
+    color_thresh_style.add( "wanted_attributes.", "b" );
+    color_thresh_style.add( "wanted_attributes.", "value_thresh" );
+    ptree color_style;
+    color_style.put( "hidden", true );
+    color_style.put( "plot_prefix", "plot" );
+    color_style.put( "gnuplot.style", "rgbalpha" );
+    color_style.add( "wanted_attributes.", "x" );
+    color_style.add( "wanted_attributes.", "y" );
+    color_style.add( "wanted_attributes.", "r" );
+    color_style.add( "wanted_attributes.", "g" );
+    color_style.add( "wanted_attributes.", "b" );
+    color_style.add( "wanted_attributes.", "value" );
+
+    std::vector< std::string > plot_ids;
+    std::vector< std::string > plot_thresh_ids;
+    for( std::string did : data_series ) {
+      plot_ids.push_back( create_plot( color_style,
+				       { did } ) );
+      plot_thresh_ids.push_back( create_plot( color_thresh_style,
+					      { did } ) );
+
+    }
+
+    // create the style for a compund plot of all these series
+    ptree time_style;
+    time_style.put( "plot_prefix", "plot" );
+    time_style.put( "gnuplot.style", "rgbalpha" );
+    time_style.add( "wanted_attributes.", "x" );
+    time_style.add( "wanted_attributes.", "y" );
+    time_style.add( "wanted_attributes.", 255 );
+    time_style.add( "wanted_attributes.", 255 );
+    time_style.add( "wanted_attributes.", 255 );
+    time_style.add( "wanted_attributes.", 0.0 );
+    time_style.put( "pre_gnuplot_commands",
+		    "set key off\nset size ratio -1" );
+    std::string compound_plot
+      = create_plot( time_style,
+		     { data_series[0] } );
+    std::string thresh_plot
+      = create_plot( time_style,
+		     { data_series[0] } );
+    for( auto pid : plot_ids ) {
+      add_plot_to_plot( pid, compound_plot );
+    }
+    for( auto pid : plot_thresh_ids ) {
+      add_plot_to_plot( pid, thresh_plot );
+    }
+    
+    return compound_plot;
   }
 
   //=======================================================================

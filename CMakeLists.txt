@@ -41,12 +41,15 @@ pods_install_headers(
 )
 pods_use_pkg_config_packages(p2l-planner-core 
     p2l-point-process-core 
-    boost-1.54.0)
+    boost-1.54.0
+    plot-server-api-internal
+    plot-server-api
+    plot-server-util)
 pods_install_libraries( p2l-planner-core )
 pods_install_pkg_config_file(p2l-planner-core
     CFLAGS
     LIBS -lp2l-planner-core
-    REQUIRES p2l-point-process-core boost-1.54.0
+    REQUIRES p2l-point-process-core boost-1.54.0 plot-server-api-internal plot-server-api plot-server-util
     VERSION 0.0.1)
 
 
