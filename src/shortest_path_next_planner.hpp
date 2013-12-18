@@ -34,7 +34,10 @@ namespace planner_core {
       const entropy_estimator_parameters_t& entropy_params,
       const sampler_planner_parameters_t& sampler_planner_params,
       const double& probability_next_action_is_in_shortest_path_threshold );
-  
+
+
+    virtual ~shortest_path_next_planner();
+
 
     // Description:
     // Returns the observation grid/ visited grid which has marked as true
@@ -149,7 +152,13 @@ namespace planner_core {
     virtual
     std::string
     plot( const std::string& title ) const;
-    
+
+
+    // Descriotion:
+    // Plot all of the stored next_cell dataseries into a time plot
+    virtual
+    std::string
+    plot_all_next_cell_dist( const std::string& title ) const;
 
   public:
 
@@ -207,7 +216,11 @@ namespace planner_core {
     // Threshold of "good" potentail next actions in shortest path
     // as the probability that it is ion the shortest path
     double _probability_next_action_is_in_shortest_path_threshold;
-    
+
+    // Description:
+    // Store all of the data series ids for the net cell distributions
+    // created durign a run
+    std::vector< std::string > _next_cell_distribution_dataseries;
   };
 
 }

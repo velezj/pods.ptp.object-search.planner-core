@@ -1007,6 +1007,9 @@ namespace planner_core {
       = create_dataseries(  next_cell_dist,
 			    ptree(),
 			    "next-observation-p()-of-" + title );
+
+    /// we want to *store* these particular plots for later use
+    _next_cell_distribution_dataseries.push_back( next_cell_ds );
     
     // create a style for the visited and negative regions
     ptree visited_style;
@@ -1063,8 +1066,29 @@ namespace planner_core {
     return compound_plot;
   }
 
+  //=======================================================================
+  
+  std::string
+  shortest_path_next_planner::plot_all_next_cell_dist
+  ( const std::string& title ) const
+  {
+
+    
+
+  }
 
   //=======================================================================
+
+  shortest_path_next_planner::~shortest_path_next_planner()
+  {
+    // create a plot fo all of the store dataseries
+    std::string next_cell_plot =
+      plot_all_next_cell_dist( "next-obs-over-time" );
+    std::cout << std::endl
+	      << "***" << std::endl
+	      << " NEXT-OBS-OVER-TIME: " << next_cell_plot << std::endl;
+  }
+
   //=======================================================================
   //=======================================================================
   //=======================================================================
