@@ -34,6 +34,8 @@ namespace planner_core {
       _negative_observation_grid = marked_grid_t<bool>( _point_process->window(),
 							_planner_params.grid_cell_size );
     }
+
+    virtual ~coverage_planner() { };
   
 
     // Description:
