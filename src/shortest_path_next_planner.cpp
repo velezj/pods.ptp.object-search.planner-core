@@ -18,6 +18,9 @@
 #include <boost/property_tree/ptree.hpp>
 
 
+#define VERBOSE false
+#define PRINT_WARNINGS true
+
 using namespace point_process_core;
 using namespace boost::property_tree;
 using namespace plot_server::api;
@@ -434,15 +437,18 @@ namespace planner_core {
       if( sample_point_set.empty() ) {
 
 	// debug 
-	std::cout << " #0 ";
-	std::cout.flush();
+	if( VERBOSE ) {
+	  std::cout << " #0 ";
+	  std::cout.flush();
+	}
 
 	continue;
       }
 
       // print this sample to the console
-      spnp_console_print_point_set( sample_point_set, visited_grid );
-      
+      if( VERBOSE ) {
+	spnp_console_print_point_set( sample_point_set, visited_grid );
+      }
       
       // Calcualte the next observation in the shortest path thorugh
       // points
@@ -453,7 +459,9 @@ namespace planner_core {
       
       // skip updating distribution if no next observation found
       if( !next_obs ) {
-	std::cout << std::endl;
+	if( VERBOSE ) {
+	  std::cout << std::endl;
+	}
 	continue;
       }
       
@@ -466,8 +474,10 @@ namespace planner_core {
       }
 
       // print out the chosen next obs and hte ddistribution counts
-      std::cout << std::setw(5) << *next_obs << "  ";
-      spnp_console_print_next_obs_dist( next_observation_distribution );
+      if(VERBOSE) {
+	std::cout << std::setw(5) << *next_obs << "  ";
+	spnp_console_print_next_obs_dist( next_observation_distribution );
+      }
     }
 
     // // Ok, now divide all counts by number of samples
@@ -533,7 +543,9 @@ namespace planner_core {
       }
 
       if( nonvisited_grid_count( sample_point_set, visited_grid ) == 0 ) {
-	std::cout << "  !! no new cells in " << max_find_samples << " samples..." << std::endl;
+	if( PRINT_WARNINGS ) { 
+	  std::cout << "  !! no new cells in " << max_find_samples << " samples..." << std::endl;
+	}
       }
 
       std::vector<marked_grid_cell_t> sample_bin = canonical_point_bin( sample_point_set, visited_grid );
@@ -546,19 +558,23 @@ namespace planner_core {
       // skip if no points in sample
       if( sample_point_set.empty() ) {
 
-	// debug 
-	std::cout << " #0 ";
-	std::cout.flush();
+	// debug
+	if( PRINT_WARNINGS ) {
+	  std::cout << " #0 ";
+	  std::cout.flush();
+	}
 
 	continue;
       }
 
       // print this sample to the console
-      spnp_console_print_point_set( sample_point_set, visited_grid );
-      std::cout << std::endl;
+      if( VERBOSE ) {
+	spnp_console_print_point_set( sample_point_set, visited_grid );
+	std::cout << std::endl;
+      }
 
       // print the canonical representation
-      if( false ) {
+      if( false && VERBOSE  ) {
 	for( size_t i = 0; i < sample_bin.size(); ++i ) {
 	  std::cout << sample_bin[i];
 	}
@@ -581,21 +597,23 @@ namespace planner_core {
 
 
     // print out the table of worlds
-    std::cout << "Worlds: " << std::endl;
-    for( size_t i = 0; i < bins.size(); ++i ) {
-      std::cout << "  [" << std::setw(4) << bin_counts[i] << "] ";
-      std::vector<marked_grid_cell_t> world = bins[i];
-      for( size_t k = 0; k < world.size(); ++k ) {
-	std::cout << "(";
-	for( size_t r = 0; r < world[k].coordinate.size(); ++r ) {
-	  std::cout << world[k].coordinate[r];
-	  if( r + 1 < world[k].coordinate.size() ) {
-	    std::cout << ",";
+    if(VERBOSE) {
+      std::cout << "Worlds: " << std::endl;
+      for( size_t i = 0; i < bins.size(); ++i ) {
+	std::cout << "  [" << std::setw(4) << bin_counts[i] << "] ";
+	std::vector<marked_grid_cell_t> world = bins[i];
+	for( size_t k = 0; k < world.size(); ++k ) {
+	  std::cout << "(";
+	  for( size_t r = 0; r < world[k].coordinate.size(); ++r ) {
+	    std::cout << world[k].coordinate[r];
+	    if( r + 1 < world[k].coordinate.size() ) {
+	      std::cout << ",";
+	    }
 	  }
+	  std::cout << ")";
 	}
-	std::cout << ")";
+	std::cout << std::endl;
       }
-      std::cout << std::endl;
     }
 
     // Ok, now find the maximum count bin and return it
@@ -605,12 +623,14 @@ namespace planner_core {
     size_t max_idx = std::distance( bin_counts.begin(), max_iter );
 
     // print the best world
-    std::cout << "Most Likely world: ";
-    std::vector<marked_grid_cell_t> world = bins[max_idx];
-    for( size_t k = 0; k < world.size(); ++k ) {
-      std::cout << world[k];
+    if( VERBOSE ) {
+      std::cout << "Most Likely world: ";
+      std::vector<marked_grid_cell_t> world = bins[max_idx];
+      for( size_t k = 0; k < world.size(); ++k ) {
+	std::cout << world[k];
+      }
+      std::cout << std::endl;
     }
-    std::cout << std::endl;
 
     return bins[ max_idx ];
   }
@@ -754,7 +774,9 @@ namespace planner_core {
     }
     
     // getting here is unfortunate!
-    std::cout << "AHHHHH! Why is there no unmarkes grid cell!" << std::endl;
+    if( PRINT_WARNINGS ) {
+      std::cout << "AHHHHH! Why is there no unmarkes grid cell!" << std::endl;
+    }
     return _visited_grid.cell( _current_position );
   }
 

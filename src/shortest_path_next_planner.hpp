@@ -6,6 +6,7 @@
 #include "planner.hpp"
 #include <point-process-core/entropy.hpp>
 
+#define SAMPLING_VERBOSE false
 
 namespace planner_core {
 
@@ -64,7 +65,7 @@ namespace planner_core {
     {
       _negative_observation_grid.set( cell, true );
       _point_process->add_negative_observation( _negative_observation_grid.region(cell) );
-      _point_process->mcmc( _planner_params.update_model_mcmc_iterations, true );
+      _point_process->mcmc( _planner_params.update_model_mcmc_iterations, SAMPLING_VERBOSE );
     }
 
     // Description:
@@ -84,7 +85,7 @@ namespace planner_core {
     void add_observations( const std::vector<math_core::nd_point_t>& obs )
     {
       _point_process->add_observations( obs );
-      _point_process->mcmc( _planner_params.update_model_mcmc_iterations, true );
+      _point_process->mcmc( _planner_params.update_model_mcmc_iterations, SAMPLING_VERBOSE );
       _observations.insert( _observations.end(), obs.begin(), obs.end() );
     }
 
