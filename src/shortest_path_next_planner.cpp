@@ -1195,11 +1195,11 @@ namespace planner_core {
   shortest_path_next_planner::~shortest_path_next_planner()
   {
     // create a plot fo all of the store dataseries
-    std::string next_cell_plot =
-      plot_all_next_cell_dist( "next-obs-over-time" );
-    std::cout << std::endl
-	      << "***" << std::endl
-	      << " NEXT-OBS-OVER-TIME: " << next_cell_plot << std::endl;
+    // std::string next_cell_plot =
+    //   plot_all_next_cell_dist( "next-obs-over-time" );
+    // std::cout << std::endl
+    // 	      << "***" << std::endl
+    // 	      << " NEXT-OBS-OVER-TIME: " << next_cell_plot << std::endl;
   }
 
   //=======================================================================
