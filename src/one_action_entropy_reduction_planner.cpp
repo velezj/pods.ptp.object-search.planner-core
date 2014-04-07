@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
+#include <boost/pointer_cast.hpp>
+#include <stdexcept>
 
 
 #define VERBOSE false
@@ -29,7 +31,7 @@ namespace planner_core {
     const entropy_estimator_parameters_t& ent_params )
   {
     boost::shared_ptr<ruler_point_process::ruler_point_process_t> rp
-      = dynamic_pointer_cast<boost::shared_ptr<ruler_point_process::ruler_point_process_t> >( point_process );
+      = boost::dynamic_pointer_cast<ruler_point_process::ruler_point_process_t >( point_process );
     if( rp ) {
 
       // this has a close form solution!
@@ -39,7 +41,7 @@ namespace planner_core {
 
       // we have to approximate this with samples
       // for now throw an exception
-      throw( std::runtime_exception( "entropy difference not implemented for anything but the ruler_point_process_t!" ) );
+      throw( std::runtime_error( "entropy difference not implemented for anything but the ruler_point_process_t!" ) );
 	     
     }
     
@@ -65,7 +67,7 @@ namespace planner_core {
 
   void
   one_action_entropy_reduction_planner_t
-  ::calculate_expected_entropy_reduction( marked_grid_t<double>& red_grid ) 
+  ::calculate_expected_entropy_reduction( marked_grid_t<double>& red_grid ) const
   {
 
     // calculate the grid cells which have not yet been visited and so 
@@ -88,7 +90,7 @@ namespace planner_core {
       std::vector<nd_point_t> world = _point_process->sample_and_step();
 
       // bin the points into the cells
-      marked_grid_cell_t<std::vector<nd_point_t> > binned_world 
+      marked_grid_t<std::vector<nd_point_t> > binned_world 
 	= red_grid.copy_structure<std::vector<nd_point_t> >();
       bin_points( world, binned_world );
 
@@ -185,78 +187,6 @@ namespace planner_core {
 
   //=======================================================================
   
-  std::string to_json( const grid_planner_parameters_t& p ) 
-  {
-    std::ostringstream oss;
-    oss << "{ \"object_class\" : \"grid_planner_parameters_t\" , ";
-    oss << "  \"burnin_mcmc_iterations\" : " << p.burnin_mcmc_iterations << " , ";
-    oss << "  \"update_model_mcmc_iterations\" : " << p.update_model_mcmc_iterations << " , ";
-    oss << "  \"grid_cell_size\" : " << p.grid_cell_size;
-    oss << "}";
-    return oss.str();
-  }
-  
-  //=======================================================================
-
-  std::string to_json( const sampler_planner_parameters_t& p )
-  {
-    std::ostringstream oss;
-    oss << "{ \"object_class\" : \"sampler_planner_parameters_t\" , ";
-    oss << "  \"num_samples_of_observations\" : " << p.num_samples_of_observations << " , ";
-    oss << "  \"num_samples_of_point_sets\" : " << p.num_samples_of_point_sets;
-    oss << "  \"num_skip_between_point_set_samples\" : " << p.num_skip_between_point_set_samples;
-    oss << "}";
-    return oss.str();
-  }
-
-  //=======================================================================
-
-  std::string to_json( const entropy_estimator_parameters_t& p )
-  {
-    std::ostringstream oss;
-    oss << "{ \"object_class\" : \"entropy_estimator_parameters_t\" , ";
-    oss << "  \"num_samples\" : " << p.num_samples << " , ";
-    oss << "  \"num_samples_to_skip\" : " << p.num_samples_to_skip << " , ";
-    oss << "  \"histogram_grid_cell_size\" : " << p.histogram_grid_cell_size;
-    oss << "}";
-    return oss.str();
-  }
-
-  //=======================================================================
-
-  std::string to_json( const marked_grid_cell_t& cell ) 
-  {
-    std::ostringstream oss;
-    oss << "{ \"object_class\" : \"marked_grid_cell_t\" , ";
-    oss << "  \"coordinate\" : [";
-    for( size_t i = 0; i < cell.coordinate.size(); ++i ) {
-      oss << cell.coordinate[i];
-      if( i < cell.coordinate.size() - 1 ) {
-	oss << ",";
-      }
-    }
-    oss << "] }";
-    return oss.str();
-  }
-
-  //=======================================================================
-
-  std::string to_json( const marked_grid_t<bool>& grid )
-  {
-    std::ostringstream oss;
-    oss << "{ \"object_class\" : \"marked_grid_t<bool>\" , ";
-    oss << "  \"marked-cells\" : [ ";
-    std::vector<marked_grid_cell_t> cells = grid.all_marked_cells();
-    for( size_t i = 0; i < cells.size(); ++i ) {
-      oss << to_json( cells[i] );
-      if( i < cells.size() - 1 ) {
-	oss << ",";
-      }
-    }
-    oss << "] }";
-    return oss.str();
-  }
-
   //=======================================================================
 
 
@@ -264,22 +194,22 @@ namespace planner_core {
   one_action_entropy_reduction_planner_t::print_shallow_trace( std::ostream& out ) const
   {
 
-    out << "{ \"object_class\" : \"one_action_entropy_reduction_planner_t\" , ";
-    out << "  \"current_position\" : " << to_json( _current_position ) << " , ";
-    out << "  \"planner_params\" : " << to_json( _planner_params ) << " , ";
-    out << "  \"entropy_params\" : " << to_json( _entropy_params ) << " , ";
-    out << "  \"sample_planner_params\" : " << to_json( _sampler_planner_params ) << " , ";
-    out << "  \"observations\" : [ ";
-    for( size_t i = 0 ; i < _observations.size(); ++i ) {
-      out << to_json( _observations[i]  );
-      if( i < _observations.size() - 1 ) {
-	out << ",";
-      }
-    }
-    out << "], ";
-    out << "  \"visited_grid\" : " << to_json( _visited_grid ) << " , ";
-    out << "  \"negative_observation_grid\" : " << to_json( _negative_observation_grid ) << "";
-    out << "} ";
+    // out << "{ \"object_class\" : \"one_action_entropy_reduction_planner_t\" , ";
+    // out << "  \"current_position\" : " << to_json( _current_position ) << " , ";
+    // out << "  \"planner_params\" : " << to_json( _planner_params ) << " , ";
+    // out << "  \"entropy_params\" : " << to_json( _entropy_params ) << " , ";
+    // out << "  \"sample_planner_params\" : " << to_json( _sampler_planner_params ) << " , ";
+    // out << "  \"observations\" : [ ";
+    // for( size_t i = 0 ; i < _observations.size(); ++i ) {
+    //   out << to_json( _observations[i]  );
+    //   if( i < _observations.size() - 1 ) {
+    // 	out << ",";
+    //   }
+    // }
+    // out << "], ";
+    // out << "  \"visited_grid\" : " << to_json( _visited_grid ) << " , ";
+    // out << "  \"negative_observation_grid\" : " << to_json( _negative_observation_grid ) << "";
+    // out << "} ";
     
   }
 
