@@ -59,7 +59,9 @@ namespace planner_core {
       if( !bins( cell ) ) {
 	bins.set( cell, std::vector<nd_point_t>() );
       }
-      bins( cell )->push_back( p );
+      std::vector<nd_point_t> x = *bins( cell );
+      x.push_back( p );
+      bins.set( cell, x );
     }
   }
 
@@ -102,6 +104,11 @@ namespace planner_core {
 	    expected_posterior_entropy_difference( _point_process,
 						   *binned_world( cell ),
 						   _entropy_params );
+
+	  if( VERBOSE ) {
+	    std::cout << "  sample[" << world_i << "].cell{" << cell << "} ediff= " << e_diff << " #" << binned_world(cell)->size() << std::endl;
+	  }
+
 	}
 	if( !red_grid(cell) ) {
 	  red_grid.set( cell, 0.0 );
@@ -134,6 +141,10 @@ namespace planner_core {
 	  max_red = r;
 	}
       }
+    }
+
+    if( VERBOSE ) {
+      std::cout << "Max Ent Reduction: " << max_red << " cell: " << max_cell << std::endl;
     }
 
     // make sure we have found a reducing cell and return it

@@ -33,10 +33,11 @@ namespace planner_core {
   canonical_point_bin( const std::vector<nd_point_t>& points,
 		       const marked_grid_t<bool>& grid )
   {
-    for( size_t i = 0; i < points.size(); ++i ) {
-      std::cout << points[i] << " ";
-    }
-    std::cout << std::endl;
+    
+    // for( size_t i = 0; i < points.size(); ++i ) {
+    //   std::cout << points[i] << " ";
+    // }
+    // std::cout << std::endl;
     std::vector<marked_grid_cell_t> bins;
     std::vector<marked_grid_cell_t> cells = grid.all_cells();
     for( size_t i = 0; i < cells.size();++i ) {
@@ -244,7 +245,7 @@ namespace planner_core {
   shortest_path_next_planner
   ::next_observation_in_shortest_path
   ( const std::vector<nd_point_t>& points,
-    const marked_grid_t<bool> visisted_grid_param,
+    const marked_grid_t<bool>& visisted_grid_param,
     const nd_point_t& current_position ) const
   {
     
@@ -534,7 +535,7 @@ namespace planner_core {
       // keep sampling until we get a point set that has at least some
       // possible new information
       // (so, at least one *new* non-visited grid must have a point
-      size_t max_find_samples = 100;
+      size_t max_find_samples = 500;
       size_t find_samples_count = 0;
       while( nonvisited_grid_count( sample_point_set, visited_grid ) < 1
 	     && find_samples_count < max_find_samples ) {
@@ -985,6 +986,8 @@ namespace planner_core {
   std::string
   shortest_path_next_planner::plot( const std::string& title ) const
   {
+
+    return "";
 
     // get a plot for the model
     std::string model_plot = _point_process->plot( "model-for-" + title );
