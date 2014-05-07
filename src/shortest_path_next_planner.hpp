@@ -182,7 +182,7 @@ namespace planner_core {
     boost::optional<marked_grid_cell_t>
     next_observation_in_shortest_path
     ( const std::vector<nd_point_t>& points,
-      const marked_grid_t<bool> visisted_grid,
+      const marked_grid_t<bool>& visisted_grid,
       const nd_point_t& current_position) const;
 
 

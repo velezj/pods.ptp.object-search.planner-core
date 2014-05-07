@@ -1,6 +1,7 @@
 
 #include "one_action_entropy_reduction_planner.hpp"
 #include <ruler-point-process/ruler_point_process.hpp>
+#include <igmm-point-process/igmm_point_process.hpp>
 #include <math-core/geom.hpp>
 #include <math-core/io.hpp>
 #include <math-core/utils.hpp>
@@ -37,14 +38,23 @@ namespace planner_core {
       // this has a close form solution!
       return rp->expected_posterior_entropy_difference( new_obs );
       
-    } else {
+    } 
 
-      // we have to approximate this with samples
-      // for now throw an exception
-      throw( std::runtime_error( "entropy difference not implemented for anything but the ruler_point_process_t!" ) );
-	     
-    }
-    
+
+    boost::shared_ptr<igmm_point_process::igmm_point_process_t> igmm
+      = boost::dynamic_pointer_cast<igmm_point_process::igmm_point_process_t >( point_process );
+    if( igmm ) {
+
+      // this has a close form solution!
+      return igmm->expected_posterior_entropy_difference( new_obs );
+      
+    } 
+
+
+
+    // we have to approximate this with samples
+    // for now throw an exception
+    throw( std::runtime_error( "entropy difference not implemented for anything but the ruler_point_process_t!" ) );
     return 0;
   }
 

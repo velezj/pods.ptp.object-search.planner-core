@@ -19,7 +19,7 @@
 
 
 #define VERBOSE false
-#define PRINT_WARNINGS true
+#define PRINT_WARNINGS false
 
 using namespace point_process_core;
 using namespace boost::property_tree;
@@ -535,7 +535,7 @@ namespace planner_core {
       // keep sampling until we get a point set that has at least some
       // possible new information
       // (so, at least one *new* non-visited grid must have a point
-      size_t max_find_samples = 500;
+      size_t max_find_samples = 10;
       size_t find_samples_count = 0;
       while( nonvisited_grid_count( sample_point_set, visited_grid ) < 1
 	     && find_samples_count < max_find_samples ) {
@@ -744,9 +744,9 @@ namespace planner_core {
     std::vector<marked_grid_cell_t> binned_world =
       estimate_most_likely_world
       ( _point_process,
-	_visited_grid,
-	_sampler_planner_params.num_samples_of_point_sets,
-	_sampler_planner_params.num_skip_between_point_set_samples);
+    	_visited_grid,
+    	_sampler_planner_params.num_samples_of_point_sets,
+    	_sampler_planner_params.num_skip_between_point_set_samples);
 
     // Ok, now create virtual points at each cell
     std::vector<nd_point_t> virtual_points;
@@ -759,8 +759,9 @@ namespace planner_core {
     // Now get next shortest path action in this virtual world
     boost::optional<marked_grid_cell_t> next_cell
       = next_observation_in_shortest_path( virtual_points,
-					   _visited_grid,
-					   _current_position );
+    					   _visited_grid,
+    					   _current_position );
+
 
     if( next_cell )
       return *next_cell;
