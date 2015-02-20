@@ -28,6 +28,7 @@ add_library( p2l-planner-core SHARED
   src/greedy_shortest_path_distribution_threshold_planner.cpp
   src/shortest_path_next_planner.cpp
   src/one_action_entropy_reduction_planner.cpp
+  src/random_planner.cpp
 )
 pods_install_headers( 
   src/planner.hpp
@@ -38,6 +39,7 @@ pods_install_headers(
   src/shortest_path_next_planner.hpp
   src/coverage_planner.hpp
   src/one_action_entropy_reduction_planner.hpp
+  src/random_planner.hpp
   DESTINATION
   planner-core
 )
