@@ -27,7 +27,6 @@ add_library( p2l-planner-core SHARED
   src/greedy_entropy_reduction_planner.cpp
   src/greedy_shortest_path_distribution_threshold_planner.cpp
   src/shortest_path_next_planner.cpp
-  src/one_action_entropy_reduction_planner.cpp
   src/random_planner.cpp
 )
 pods_install_headers( 
@@ -38,7 +37,6 @@ pods_install_headers(
   src/greedy_shortest_path_distribution_threshold_planner.hpp
   src/shortest_path_next_planner.hpp
   src/coverage_planner.hpp
-  src/one_action_entropy_reduction_planner.hpp
   src/random_planner.hpp
   DESTINATION
   planner-core
@@ -49,14 +47,12 @@ pods_use_pkg_config_packages(p2l-planner-core
     plot-server-api-internal
     plot-server-api
     plot-server-util
-    p2l-ruler-point-process
-    p2l-igmm-point-process
 )
 pods_install_libraries( p2l-planner-core )
 pods_install_pkg_config_file(p2l-planner-core
     CFLAGS
     LIBS -lp2l-planner-core
-    REQUIRES p2l-point-process-core boost-1.54.0 plot-server-api-internal plot-server-api plot-server-util p2l-ruler-point-process p2l-igmm-point-process
+    REQUIRES p2l-point-process-core boost-1.54.0 plot-server-api-internal plot-server-api plot-server-util
     VERSION 0.0.1)
 
 
