@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6.0)
 
 # pull in the pods macros. See cmake/pods.cmake for documentation
-set(POD_NAME p2l-planner-core)
+set(POD_NAME object-search.planner-core)
 include(cmake/pods.cmake)
 
 
@@ -15,7 +15,7 @@ endif (USE_PEDANTIC)
 
 
 ## the library
-add_library( p2l-planner-core SHARED
+add_library( object-search.planner-core SHARED
   src/greedy_entropy_reduction_planner.cpp
   src/greedy_shortest_path_distribution_threshold_planner.cpp
   src/shortest_path_next_planner.cpp
@@ -33,18 +33,18 @@ pods_install_headers(
   DESTINATION
   planner-core
 )
-pods_use_pkg_config_packages(p2l-planner-core 
-    p2l-point-process-core 
+pods_use_pkg_config_packages(object-search.planner-core 
+    object-search.point-process-core 
     boost-1.54.0
     plot-server-api-internal
     plot-server-api
     plot-server-util
 )
-pods_install_libraries( p2l-planner-core )
-pods_install_pkg_config_file(p2l-planner-core
+pods_install_libraries( object-search.planner-core )
+pods_install_pkg_config_file(object-search.planner-core
     CFLAGS
-    LIBS -lp2l-planner-core
-    REQUIRES p2l-point-process-core boost-1.54.0 plot-server-api-internal plot-server-api plot-server-util
+    LIBS -lobject-search.planner-core
+    REQUIRES object-search.point-process-core boost-1.54.0 plot-server-api-internal plot-server-api plot-server-util
     VERSION 0.0.1)
 
 
