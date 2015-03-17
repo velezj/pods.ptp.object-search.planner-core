@@ -1148,7 +1148,7 @@ namespace planner_core {
       
       // save the data series doc
       ptree res =
-	internal::globaldb().save( new_ds );
+	internal::currentdb().save( new_ds );
       
       std::string new_id = res.get<std::string>("id");
       data_series.push_back( new_id ); 
